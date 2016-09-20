@@ -15,6 +15,13 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
+using Newtonsoft.Json.Linq;
+using Microsoft.WindowsAzure.MobileServices;
+using System.Threading.Tasks;
+using Windows.Networking.PushNotifications;
+using P05_MisAmigosAzureMobile;
+
+
 namespace P05_MisAmigosAzureMobile.UWP
 {
     /// <summary>
@@ -22,10 +29,24 @@ namespace P05_MisAmigosAzureMobile.UWP
     /// </summary>
     sealed partial class App : Application
     {
-        /// <summary>
-        /// Initializes the singleton application object.  This is the first line of authored code
-        /// executed, and as such is the logical equivalent of main() or WinMain().
-        /// </summary>
+        private async Task InitNotificationsAsync()
+        {
+            var channel = await PushNotificationChannelManager.CreatePushNotificationChannelForApplicationAsync();
+            const string templateBodyWNS = "<toast><visual><binding template=\"ToastText01\"><text id=\"1\">$(messageParam)</text></binding></visual></toast>";
+
+            JObject headers = new JObject();
+            headers["X-WNS-Type"] = "wns/toast";
+
+            JObject templates = new JObject();
+            templates["genericMessage"] = new JObject {
+                { "body", templateBodyWNS},
+                { "headers", headers}
+            };
+
+            await P05_MisAmigosAzureMobile.App.AzureService.MobileService.GetPush().RegisterAsync(channel.Uri, templates);
+        }
+
+
         public App()
         {
             this.InitializeComponent();
@@ -37,8 +58,9 @@ namespace P05_MisAmigosAzureMobile.UWP
         /// will be used such as when the application is launched to open a specific file.
         /// </summary>
         /// <param name="e">Details about the launch request and process.</param>
-        protected override void OnLaunched(LaunchActivatedEventArgs e)
+        protected async override void OnLaunched(LaunchActivatedEventArgs e)
         {
+            await InitNotificationsAsync();
 
 #if DEBUG
             if (System.Diagnostics.Debugger.IsAttached)

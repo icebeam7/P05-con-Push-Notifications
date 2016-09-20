@@ -4,28 +4,21 @@ using System.Linq;
 using System.Text;
 
 using Xamarin.Forms;
+using P05_MisAmigosAzureMobile.Datos;
+using P05_MisAmigosAzureMobile.Paginas;
 
 namespace P05_MisAmigosAzureMobile
 {
 	public class App : Application
 	{
-		public App ()
-		{
-			// The root page of your application
-			MainPage = new ContentPage {
-				Content = new StackLayout {
-					VerticalOptions = LayoutOptions.Center,
-					Children = {
-						new Label {
-							HorizontalTextAlignment = TextAlignment.Center,
-							Text = "Welcome to Xamarin Forms!"
-						}
-					}
-				}
-			};
-		}
+        public static AzureDataService AzureService = new AzureDataService();
 
-		protected override void OnStart ()
+        public App ()
+		{
+            MainPage = new NavigationPage(new PaginaListaAmigos());
+        }
+
+        protected override void OnStart ()
 		{
 			// Handle when your app starts
 		}
